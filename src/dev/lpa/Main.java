@@ -15,8 +15,27 @@ public class Main {
         Path path = Path.of("");
         System.out.println("cwd = " + path.toAbsolutePath());
 
+        System.out.println("-----------");
         // Walk is recursive if you specify a depth >1
+        // Files.walk and Files.list return a stream
         try (Stream<Path> paths = Files.walk(path, 2)) {
+            paths
+                    .filter(Files::isRegularFile)
+                    // dist bw dir and file
+                    .map(Main::listDir)
+                    .forEach(System.out::println);
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+
+        System.out.println("-----------");
+        // Walk is recursive if you specify a depth >1
+        // Files.walk and Files.list return a stream
+        try (Stream<Path> paths = Files.find(path, Integer.MAX_VALUE,
+                (p, attr) -> attr.isRegularFile() && attr.size() > 300
+                )) {
             paths
                     // dist bw dir and file
                     .map(Main::listDir)
@@ -26,6 +45,15 @@ public class Main {
             throw new RuntimeException(e);
         }
 
+
+        System.out.println("========Directory Stream=======");
+
+        try(var dirs = Files.newDirectoryStream(path)){
+            dirs.forEach(d -> System.out.println(Main.listDir(d)));
+        }
+        catch(IOException e){
+            throw new RuntimeException(e);
+        }
 
     }
 
