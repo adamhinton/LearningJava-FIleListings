@@ -15,7 +15,8 @@ public class Main {
         Path path = Path.of("");
         System.out.println("cwd = " + path.toAbsolutePath());
 
-        try (Stream<Path> paths = Files.list(path)) {
+        // Walk is recursive if you specify a depth >1
+        try (Stream<Path> paths = Files.walk(path, 2)) {
             paths
                     // dist bw dir and file
                     .map(Main::listDir)
@@ -26,13 +27,11 @@ public class Main {
         }
 
 
-
-
     }
 
     // dist bw dir and file
-    private static String listDir (Path path){
-        try{
+    private static String listDir(Path path) {
+        try {
             boolean isDir = Files.isDirectory(path);
             FileTime dateField = Files.getLastModifiedTime(path);
             LocalDateTime modDT = LocalDateTime.ofInstant(
@@ -41,8 +40,7 @@ public class Main {
             );
             return "%tD %tT %-5s %12s %s"
                     .formatted(modDT, modDT, (isDir ? "<DIR>" : ""), (isDir ? "" : Files.size(path)), path);
-        }
-        catch(IOException e){
+        } catch (IOException e) {
             System.out.println("Whoops! Something went wrong with " + path);
             return path.toString();
         }
